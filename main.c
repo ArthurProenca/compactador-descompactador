@@ -1,8 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-
-typedef unsigned short int ui16;
+#include "imagelib.h"
 
 #define TAM_DICT 4096
 #define NUM_SIMB 256
@@ -85,13 +84,12 @@ void decodifica(ui16 *in, int n)
             {
                 dicionario[posDict++].seq[tam] = dicionario[simbolo].seq[0];
             }
-
-            for (int k = 0; k < dicionario[anterior].tam; k++)
-            {
-                printf("[%d]-", dicionario[simbolo].seq[k]);
-            }
-            anterior = simbolo;
         }
+        for (int k = 0; k < dicionario[anterior].tam; k++)
+        {
+            printf("[%d]-", dicionario[simbolo].seq[k]);
+        }
+        anterior = simbolo;
     }
     free(aInfo.base);
     puts("");
@@ -131,11 +129,30 @@ void codifica(int *in, int n)
     printf("[%d]\n", corrente);
 }
 
-int main()
+void msg(char *s)
 {
-    ui16 in[10] = {39, 39, 126, 126, 256, 258, 260, 259, 257, 126};
-    int in2[16] = {39, 39, 126, 126, 39, 39, 126, 126, 39, 39, 126, 126, 39, 39, 126, 126};
-    codifica(in2, 16);
+    printf("\nDescompactador");
+    printf("\n-------------------------------");
+    printf("\nUso:  %s  nome-arquivo[.l64] \n\n", s);
+    printf("    nome-arquivo[.l64] é o nome do arquivo compactado\n");
+    exit(1);
+}
+
+int main(int argc, char *argv[])
+{
+    int nc, nr, ml, tp;
+    char *p, nameIn[100], nameOut[100], cmd[110];
+    if (argc < 2)
+        msg(argv[0]);
+    img_name(argv[1], nameIn, nameOut, GRAY);
+    image In, Out;
+    char *lzw_compressed = img_getcompressed(nameIn, &nr, &nc);
+
+    ui16 *in = lzw_decode(lzw_compressed, nr * nc);
+
+    // ui16 in[10] = {4096, 39, 126, 126, 256, 258, 260, 259, 257, 126};
+    //  int in2[16] = {39, 39, 126, 126, 39, 39, 126, 126, 39, 39, 126, 126, 39, 39, 126, 126};
+    //  codifica(in2, 16);
     decodifica(in, 10);
     return 0;
 }
