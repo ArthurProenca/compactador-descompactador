@@ -10,9 +10,8 @@
   +----------------------------------------------------------------------*/
 #define CREATOR "# CREATOR: Image Processing using C-Ansi - ByDu\n"
 
-typedef int *image;
 typedef unsigned short int ui16;
-
+typedef ui16 *image;
 #define ERROR(x, y) \
     if (x)          \
     y

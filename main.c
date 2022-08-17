@@ -27,8 +27,9 @@ ui16 *aloca(alocaInfo *aloc, int len)
     return ret;
 }
 
-void decodifica(ui16 *in, int n)
+ui16 *decodifica(ui16 *in, int n)
 {
+    ui16 *out = malloc(sizeof(ui16) * n);
     struct
     {
         ui16 *seq;
@@ -40,6 +41,9 @@ void decodifica(ui16 *in, int n)
     int posDict;
     int anterior;
     int i;
+    int j = 0;
+    int k;
+    int x = 0;
     iniciaAloca(&aInfo, TAM_DICT * TAM_DICT * sizeof(ui16));
 
     marca = aInfo.proxAloca;
@@ -51,7 +55,7 @@ void decodifica(ui16 *in, int n)
     }
     posDict = NUM_SIMB;
     anterior = in[0];
-    printf("[%d]-", anterior);
+    out[0] = anterior;
     i = 1;
     while (i < n)
     {
@@ -85,14 +89,20 @@ void decodifica(ui16 *in, int n)
                 dicionario[posDict++].seq[tam] = dicionario[simbolo].seq[0];
             }
         }
-        for (int k = 0; k < dicionario[anterior].tam; k++)
+        for (k = 0; k < dicionario[anterior].tam; k++)
         {
-            printf("[%d]-", dicionario[simbolo].seq[k]);
+
+            out[j] = dicionario[simbolo].seq[k];
+            j++;
         }
+
         anterior = simbolo;
     }
     free(aInfo.base);
     puts("");
+    // printf("execs -> %i, k -> %i", j, i);
+    // printf("[%d], ", dicionario[anterior].tam);
+    return out;
 }
 
 void codifica(int *in, int n)
@@ -146,13 +156,12 @@ int main(int argc, char *argv[])
         msg(argv[0]);
     img_name(argv[1], nameIn, nameOut, GRAY);
     image In, Out;
-    char *lzw_compressed = img_getcompressed(nameIn, &nr, &nc);
+    char *lzw_compressed = img_getcompressed(nameIn, &nc, &nr);
 
     ui16 *in = lzw_decode(lzw_compressed, nr * nc);
+    printf("tam -> %i\n", nr * nc);
 
-    // ui16 in[10] = {4096, 39, 126, 126, 256, 258, 260, 259, 257, 126};
-    //  int in2[16] = {39, 39, 126, 126, 39, 39, 126, 126, 39, 39, 126, 126, 39, 39, 126, 126};
-    //  codifica(in2, 16);
-    decodifica(in, 10);
+    img_put(decodifica(in, nr * nc), nameOut, nr, nc, 255, GRAY);
+
     return 0;
 }

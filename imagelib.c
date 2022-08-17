@@ -51,7 +51,7 @@ void img_name(char *name, char *in, char *out, int tp)
     if (p)
         *p = 0;
     sprintf(in, "%s%s", name, ".l64");
-    sprintf(out, "%s-result%s", name, ".l64");
+    sprintf(out, "%s-result%s", name, ".pgm");
 }
 
 /*-------------------------------------------------------------------------
@@ -244,14 +244,14 @@ char *img_getcompressed(char *name, int *nr, int *nc)
     char *content = malloc(sizeof(char) * (*nr * *nc));
     int i = 0;
 
-    while (ch != EOF)
+    while ((ch = fgetc(fimg)) != EOF)
     {
-        ch = fgetc(fimg);
-        if (ch != '\n')
+        if (ch == '\n')
         {
-            content[i] = ch;
-            i++;
+            continue;
         }
+        content[i] = ch;
+        i++;
     }
     return content;
 }
@@ -302,7 +302,6 @@ int strbin_to_int(char *str)
     int result = 0;
     for (int j = 0; j < i; j++)
     {
-        // EDIT1: move shift statement to create proper result
         result <<= 1;
 
         if (input[j] == '1')
@@ -331,21 +330,10 @@ ui16 *lzw_decode(char *lzw_decode, int size)
         s = convert(find_in_array(cumulator[0]));
         s1 = convert(find_in_array(cumulator[1]));
         strcat(s, s1);
-       //printf("%s", s);
+        // printf("[%c] [%c] = %i\n", b64_content[find_in_array(cumulator[0])], b64_content[find_in_array(cumulator[1])], strbin_to_int(s));
         lzw_decoded[cont] = strbin_to_int(s);
         cont++;
     }
-
-    // printf("%d", lzw_decoded[2]);
-    // int a, b;
-
-    // a = find_in_array('E');
-    // b = find_in_array('A');
-    // printf("%i %i\n", a, b);
-    // char *s = convert(b);
-    // char *s1 = convert(a);
-    // strcat(s1, s);
-    // printf("%i", strbin_to_int(s1));
 
     return lzw_decoded;
 }
